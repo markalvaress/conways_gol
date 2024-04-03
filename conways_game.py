@@ -65,24 +65,26 @@ def conway(stdscr):
 
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
-    grid = np.zeros((height, width), dtype = bool) # presumably dtype bool will be faster than using int 0 and 1
-    grid[1,4] = True
-    grid[2,3] = True
-    grid[3,3] = True
-    grid[3,4] = True
-    grid[4,1] = True
-    grid[5,2] = True
+    grid = np.zeros((height - 1, width - 1), dtype = bool) # presumably dtype bool will be faster than using int 0 and 1
+
+    rng = np.random.default_rng()
+    rand_rownums = rng.integers(height - 2, size = int(width*height / 2))
+    rand_colnums = rng.integers(width - 2, size = int(width*height / 2))
+    rand_points = zip(rand_rownums, rand_colnums) # there's a change there's duplicate points here but I'm not that bothered at this stage
+
+    for point in rand_points:
+        grid[point[0], point[1]] = True
 
     while (k != ord('q')):
         stdscr.clear()
         stdscr.attron(curses.color_pair(1))
-        new_grid = np.zeros((height, width), dtype = bool)
+        new_grid = np.zeros((height - 1, width - 1), dtype = bool)
 
         # Draw current grid and work out state in next time period
-        for x in range(width):
-            for y in range(height):
+        for x in range(width - 1):
+            for y in range(height - 1):
                 if grid[y,x]:
-                    stdscr.addch(x, y, " ")
+                    stdscr.addch(y, x, " ")
                 new_grid[y,x] = determine_outcome(grid, x, y)
                 
         # first draw current grid, then update with new grid data and wait
